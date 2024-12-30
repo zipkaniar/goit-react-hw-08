@@ -1,48 +1,50 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { deleteContact } from '../redux/contacts/operations';
-import DeleteConfirmationModal from '../components/DeleteConfirmationModal/DeleteConfirmationModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateContact } from '../redux/contacts/operations';
+import EditContactForm from '../components/EditContactForm/EditContactForm';
+import './ContactsPage.module.css';
 
 const ContactsPage = () => {
   const contacts = useSelector(state => state.contacts.items);
   const dispatch = useDispatch();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [contactToDelete, setContactToDelete] = useState(null);
+  const [editingContact, setEditingContact] = useState(null);
 
-  const openModal = (contactId) => {
-    setIsModalOpen(true);
-    setContactToDelete(contactId);
+  const startEditing = contact => {
+    setEditingContact(contact);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setContactToDelete(null);
+  const stopEditing = () => {
+    setEditingContact(null);
   };
 
-  const confirmDelete = () => {
-    if (contactToDelete) {
-      dispatch(deleteContact(contactToDelete));
-    }
-    closeModal();
+  const handleUpdate = updatedValues => {
+    dispatch(updateContact({ id: editingContact.id, values: updatedValues }));
+    stopEditing();
   };
 
   return (
-    <div>
-      <h1>Contacts</h1>
-      <ul>
+    <div className="contacts-page">
+      <h1>Your Contacts</h1>
+      {!contacts.length && <p>No contacts found. Add some!</p>}
+      <ul className="contact-list">
         {contacts.map(contact => (
-          <li key={contact.id}>
-            {contact.name} - {contact.phone}
-            <button onClick={() => openModal(contact.id)}>Delete</button>
+          <li key={contact.id} className="contact-item">
+            <span>{contact.name}</span>
+            <span>{contact.phone}</span>
+            <button className="edit-button" onClick={() => startEditing(contact)}>
+              Edit
+            </button>
           </li>
         ))}
       </ul>
 
-      <DeleteConfirmationModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        onConfirm={confirmDelete}
-      />
+      {editingContact && (
+        <EditContactForm
+          initialValues={editingContact}
+          onSubmit={handleUpdate}
+          onCancel={stopEditing}
+        />
+      )}
     </div>
   );
 };

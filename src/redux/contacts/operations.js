@@ -15,3 +15,15 @@ export const deleteContact = createAsyncThunk(
     }
   }
 );
+// İletişim Güncelleme İşlemi
+export const updateContact = createAsyncThunk(
+  "contacts/updateContact",
+  async ({ id, values }, thunkAPI) => {
+    try {
+      const { data } = await axios.patch(`/contacts/${id}`, values); // Backend'e PATCH isteği
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
