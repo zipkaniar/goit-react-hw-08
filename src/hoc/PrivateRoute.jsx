@@ -1,12 +1,11 @@
-import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-const ContactsPage = () => {
-  return (
-    <div>
-      <h1>Your Contacts</h1>
-      <p>Contact list will be displayed here...</p>
-    </div>
-  );
+const PrivateRoute = ({ children }) => {
+  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
+
+  // Kullanıcı giriş yapmamışsa /login sayfasına yönlendir
+  return isLoggedIn ? children : <Navigate to="/login" />;
 };
 
-export default ContactsPage;
+export default PrivateRoute;

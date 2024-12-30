@@ -3,26 +3,88 @@ import axios from "axios";
 
 axios.defaults.baseURL = "https://connections-api.goit.global";
 
-// İletişim Silme İşlemi
-export const deleteContact = createAsyncThunk(
-  "contacts/deleteContact",
-  async (contactId, thunkAPI) => {
+// Fetch Contacts
+export const fetchContacts = createAsyncThunk(
+  "contacts/fetchContacts",
+  async (_, thunkAPI) => {
     try {
-      await axios.delete(`/contacts/${contactId}`);
-      return contactId;
+      const { data } = await axios.get("/contacts");
+      return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
-// İletişim Güncelleme İşlemi
+
+// Add Contact
+export const addContact = createAsyncThunk(
+  "contacts/addContact",
+  async (contactData, thunkAPI) => {
+    try {
+      const { data } = await axios.post("/contacts", contactData);
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+// Delete Contact
+export const deleteContact = createAsyncThunk(
+  "contacts/deleteContact",
+  async (contactId, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState();
+      const token = state.auth.token; // Token alınması
+      if (!token) {
+        return thunkAPI.rejectWithValue("No token provided");
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`, // Doğru başlık
+        },
+      };
+
+      console.log("DELETE Request ID:", contactId); // Kontrol için log ekleyin
+      await axios.delete(`/contacts/${contactId}`, config);
+      return contactId; // Redux'a silinen ID'yi döndür
+    } catch (error) {
+      console.error("DELETE Error:", error.response?.data || error.message);
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+// Update Contact
 export const updateContact = createAsyncThunk(
   "contacts/updateContact",
   async ({ id, values }, thunkAPI) => {
     try {
-      const { data } = await axios.patch(`/contacts/${id}`, values); // Backend'e PATCH isteği
+      const state = thunkAPI.getState();
+      const token = state.auth.token; // Token alınıyor
+      if (!token) {
+        return thunkAPI.rejectWithValue("No token provided");
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      // Doğru anahtar isimlerini kullandığınızdan emin olun
+      const payload = {
+        name: values.name,
+        number: values.phone || values.number, // Eğer "phone" varsa "number" alanına eşle
+      };
+
+      console.log("PATCH Request Payload:", payload); // Gönderilen veriyi kontrol edin
+
+      const { data } = await axios.patch(`/contacts/${id}`, payload, config);
       return data;
     } catch (error) {
+      console.error("PATCH Error:", error.response?.data || error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
