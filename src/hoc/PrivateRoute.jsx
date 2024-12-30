@@ -1,9 +1,12 @@
-import { Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import React from 'react';
 
-const PrivateRoute = ({ children }) => {
-  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
-  return isLoggedIn ? children : <Navigate to="/login" />;
+const ContactsPage = () => {
+  return (
+    <div>
+      <h1>Your Contacts</h1>
+      <p>Contact list will be displayed here...</p>
+    </div>
+  );
 };
 
-export default PrivateRoute;
+export default ContactsPage;

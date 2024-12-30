@@ -1,7 +1,9 @@
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { register } from '../../redux/auth/operations';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const RegistrationSchema = Yup.object().shape({
   name: Yup.string().required('Required'),
@@ -11,11 +13,20 @@ const RegistrationSchema = Yup.object().shape({
 
 const RegistrationForm = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
 
   const handleSubmit = (values, actions) => {
     dispatch(register(values));
     actions.resetForm();
   };
+
+  // Kullanıcı kayıt olduysa yönlendir
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/contacts');
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <Formik
