@@ -1,11 +1,11 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { addContact, deleteContact, fetchContacts } from "./operations";
 import { selectContacts } from "./selectors";
 import { selectNameFilter } from "../filters/selectors";
 
 const initialState = {
   contacts: {
-    items: [], // Başlangıç değeri boş bir dizi olmalı
+    items: [],
     loading: false,
     error: null,
   },
@@ -40,7 +40,7 @@ const contactsSlice = createSlice({
       })
       .addCase(deleteContact.fulfilled, (state, action) => {
         state.contacts.items = state.contacts.items.filter(
-          (contact) => contact.id !== action.payload.id
+          (contact) => contact.id !== action.payload
         );
         state.contacts.loading = false;
       })
@@ -54,7 +54,10 @@ const contactsSlice = createSlice({
   },
 });
 
-// Selector for filtered contacts
+// Varsayılan dışa aktarma
+export default contactsSlice.reducer;
+
+// Adlı selector örneği
 export const selectFilteredContacts = createSelector(
   [selectContacts, selectNameFilter],
   (contacts, nameFilter) =>
@@ -62,5 +65,3 @@ export const selectFilteredContacts = createSelector(
       contact.name.toLowerCase().includes(nameFilter.toLowerCase())
     )
 );
-
-export default contactsSlice.reducer;

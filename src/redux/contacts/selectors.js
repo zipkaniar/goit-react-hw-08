@@ -1,5 +1,11 @@
-// Redux state'teki tüm kişileri seçer
-export const selectContacts = (state) => state.contacts.items || [];
+import { createSelector } from "@reduxjs/toolkit";
+
+export const selectContactsState = (state) => state.contacts; // Tüm contacts state'i seçer
+
+export const selectContacts = createSelector(
+  [selectContactsState],
+  (contacts) => contacts.items || [] // Memoize edilmiş liste
+);
 
 // Yükleme durumunu seçer
 export const selectContactsLoading = (state) => state.contacts.isLoading;

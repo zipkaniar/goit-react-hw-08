@@ -37,7 +37,9 @@ export const login = createAsyncThunk(
 // Kullanıcı çıkış işlemi
 export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   try {
-    await axios.post("/users/logout");
+    await axios.post("/users/logout", null, {
+      headers: { Authorization: `Bearer ${thunkAPI.getState().auth.token}` },
+    });
     toast.success("Logout successful!");
   } catch (error) {
     toast.error("Logout failed. Please try again.");
