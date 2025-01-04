@@ -10,6 +10,7 @@ import {
   selectContactsError,
   selectContactsLoading,
 } from '../redux/contacts/selectors';
+
 import EditContactForm from '../components/EditContactForm/EditContactForm';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal/DeleteConfirmationModal';
 import './ContactsPage.module.css';

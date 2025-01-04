@@ -1,48 +1,52 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+import { authAxiosInstance, setAuthAxios } from "../api/authAxios";
 
-axios.defaults.baseURL = "https://connections-api.goit.global";
-
-// Kullanıcı kayıt işlemi
+// Register
 export const register = createAsyncThunk(
   "auth/register",
   async (userData, thunkAPI) => {
     try {
-      const { data } = await axios.post("/users/signup", userData);
-      toast.success("Registration successful!");
-      return data;
+      const response = await authAxiosInstance.post("/users/signup", userData);
+      return response.data;
     } catch (error) {
-      toast.error("Registration failed. Please try again.");
+      console.error("REGISTER Error:", error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
-// Kullanıcı giriş işlemi
+// Login
 export const login = createAsyncThunk(
   "auth/login",
   async (userData, thunkAPI) => {
     try {
-      const { data } = await axios.post("/users/login", userData);
-      toast.success("Login successful!");
-      return data;
+      const response = await authAxiosInstance.post("/users/login", userData);
+      const token = response.data.token;
+
+      if (token) {
+        setAuthAxios(token);
+      }
+
+      return response.data;
     } catch (error) {
-      toast.error("Login failed. Please check your credentials.");
+      console.error("LOGIN Error:", error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
-// Kullanıcı çıkış işlemi
+// Logout
 export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
-  try {
-    await axios.post("/users/logout", null, {
-      headers: { Authorization: `Bearer ${thunkAPI.getState().auth.token}` },
-    });
-    toast.success("Logout successful!");
-  } catch (error) {
-    toast.error("Logout failed. Please try again.");
-    return thunkAPI.rejectWithValue(error.message);
+  const token = thunkAPI.getState().auth.token;
+
+  if (token) {
+    setAuthAxios(token);
+    try {
+      await authAxiosInstance.post("/users/logout");
+      setAuthAxios(null);
+    } catch (error) {
+      console.error("LOGOUT Error:", error.message);
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 });

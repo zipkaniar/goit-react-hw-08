@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Axios Base URL
 axios.defaults.baseURL = "https://connections-api.goit.global";
 
 // Fetch Contacts
@@ -9,20 +8,9 @@ export const fetchContacts = createAsyncThunk(
   "contacts/fetchContacts",
   async (_, thunkAPI) => {
     try {
-      const state = thunkAPI.getState();
-      const token = state.auth.token;
-      if (!token) {
-        return thunkAPI.rejectWithValue("No token provided");
-      }
-
-      const { data } = await axios.get("/contacts", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log("Fetched Contacts:", data); // Gelen veriyi kontrol edin
+      const { data } = await axios.get("/contacts");
       return data;
     } catch (error) {
-      console.error("FETCH Error:", error.response?.data || error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -33,20 +21,9 @@ export const addContact = createAsyncThunk(
   "contacts/addContact",
   async (contactData, thunkAPI) => {
     try {
-      const state = thunkAPI.getState();
-      const token = state.auth.token;
-      if (!token) {
-        return thunkAPI.rejectWithValue("No token provided");
-      }
-
-      const { data } = await axios.post("/contacts", contactData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log("Added Contact:", data); // Eklenen veriyi kontrol edin
+      const { data } = await axios.post("/contacts", contactData);
       return data;
     } catch (error) {
-      console.error("ADD Error:", error.response?.data || error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -58,16 +35,20 @@ export const deleteContact = createAsyncThunk(
   async (contactId, thunkAPI) => {
     try {
       const state = thunkAPI.getState();
-      const token = state.auth.token;
+      const token = state.auth.token; // Token alınıyor
       if (!token) {
         return thunkAPI.rejectWithValue("No token provided");
       }
 
-      await axios.delete(`/contacts/${contactId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-      console.log("Deleted Contact ID:", contactId); // Silinen ID'yi kontrol edin
+      console.log("DELETE Request ID:", contactId); // Silinen ID'yi kontrol edin
+
+      await axios.delete(`/contacts/${contactId}`, config);
       return contactId;
     } catch (error) {
       console.error("DELETE Error:", error.response?.data || error.message);
@@ -82,24 +63,29 @@ export const updateContact = createAsyncThunk(
   async ({ id, values }, thunkAPI) => {
     try {
       const state = thunkAPI.getState();
-      const token = state.auth.token;
+      const token = state.auth.token; // Token alınıyor
       if (!token) {
         return thunkAPI.rejectWithValue("No token provided");
       }
 
-      const payload = {
-        name: values.name,
-        number: values.phone || values.number,
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       };
 
-      const { data } = await axios.patch(`/contacts/${id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Doğru anahtar isimlerini kullandığınızdan emin olun
+      const payload = {
+        name: values.name,
+        number: values.phone || values.number, // Eğer "phone" varsa "number" alanına eşle
+      };
 
-      console.log("Updated Contact:", data); // Güncellenen veriyi kontrol edin
+      console.log("PATCH Request Payload:", payload); // Gönderilen veriyi kontrol edin
+
+      const { data } = await axios.patch(`/contacts/${id}`, payload, config);
       return data;
     } catch (error) {
-      console.error("UPDATE Error:", error.response?.data || error.message);
+      console.error("PATCH Error:", error.response?.data || error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
