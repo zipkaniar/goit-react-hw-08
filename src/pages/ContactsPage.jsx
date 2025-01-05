@@ -68,7 +68,7 @@ const ContactsPage = () => {
     dispatch(addContact(newContact));
   };
 
-  // ✅ Düzenleme işlemi
+  //  Düzenleme işlemi
   const startEditing = (contact) => {
     setEditingContact(contact);
   };
@@ -82,7 +82,7 @@ const ContactsPage = () => {
     stopEditing();
   };
 
-  // ✅ Silme işlemi
+  //  Silme işlemi
   const openModal = (contactId) => {
     setIsModalOpen(true);
     setContactToDelete(contactId);
