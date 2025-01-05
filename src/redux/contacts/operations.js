@@ -3,7 +3,6 @@ import axios from "axios";
 
 axios.defaults.baseURL = "https://connections-api.goit.global";
 
-// 🔹 API isteğine otomatik olarak token ekleyen yardımcı fonksiyon
 const getAuthHeader = (thunkAPI) => {
   const state = thunkAPI.getState();
   const token = state.auth.token;
@@ -21,9 +20,6 @@ export const fetchContacts = createAsyncThunk(
     const token = state.auth.token;
 
     if (!token) {
-      console.warn(
-        "🚨 Kullanıcı giriş yapmamış, fetchContacts API çağrısı yapılmayacak!"
-      );
       return thunkAPI.rejectWithValue("User is not authenticated");
     }
 
@@ -38,7 +34,6 @@ export const fetchContacts = createAsyncThunk(
   }
 );
 
-// ✅ Add Contact (Token ile Güncellendi)
 export const addContact = createAsyncThunk(
   "contacts/addContact",
   async (contactData, thunkAPI) => {
@@ -52,13 +47,11 @@ export const addContact = createAsyncThunk(
   }
 );
 
-// ✅ Delete Contact (Token ile Güncellendi)
 export const deleteContact = createAsyncThunk(
   "contacts/deleteContact",
   async (contactId, thunkAPI) => {
     try {
       const config = getAuthHeader(thunkAPI);
-      console.log("DELETE Request ID:", contactId);
       await axios.delete(`/contacts/${contactId}`, config);
       return contactId;
     } catch (error) {
@@ -68,7 +61,6 @@ export const deleteContact = createAsyncThunk(
   }
 );
 
-// ✅ Update Contact (Token ile Güncellendi)
 export const updateContact = createAsyncThunk(
   "contacts/updateContact",
   async ({ id, values }, thunkAPI) => {
@@ -76,13 +68,11 @@ export const updateContact = createAsyncThunk(
       const config = getAuthHeader(thunkAPI);
       const payload = {
         name: values.name,
-        number: values.phone || values.number, // "phone" varsa "number" olarak kullan
+        number: values.phone || values.number, // 📌 "phone" varsa "number" olarak kullan
       };
-      console.log("PATCH Request Payload:", payload);
       const { data } = await axios.patch(`/contacts/${id}`, payload, config);
-      return data;
+      return { id, ...data }; // 📌 Güncellenmiş veriyi dön
     } catch (error) {
-      console.error("PATCH Error:", error.response?.data || error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }

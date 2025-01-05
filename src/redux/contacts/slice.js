@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchContacts, addContact, deleteContact } from "./operations";
+import {
+  fetchContacts,
+  addContact,
+  updateContact,
+  deleteContact,
+} from "./operations";
 import { logout } from "../auth/operations";
 
 const initialState = {
@@ -13,8 +18,9 @@ const contactsSlice = createSlice({
   initialState,
   reducers: {
     clearContacts: (state) => {
-      console.log("🔴 Kullanıcı çıkış yaptı, contacts sıfırlanıyor...");
       state.items = [];
+      state.isLoading = false; // API çağrısını durdur
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -38,14 +44,20 @@ const contactsSlice = createSlice({
           (contact) => contact.id !== action.payload
         );
       })
-      .addCase(logout.fulfilled, (state) => {
-        console.log("🔴 Kullanıcı çıkış yaptı, contacts sıfırlanıyor...");
+      .addCase(updateContact.fulfilled, (state, action) => {
+        const index = state.items.findIndex((c) => c.id === action.payload.id);
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
+      })
+      .addCase(logout.fulfilled, (state, action) => {
         state.items = [];
+        state.isLoading = false; // Logout sonrası API çağrısını durdur
+        state.error = null;
       });
   },
 });
 
-// 🛑 Logout sonrası temizleme işlemini desteklemek için export ediyoruz
 export const { clearContacts } = contactsSlice.actions;
 
 export default contactsSlice.reducer;
