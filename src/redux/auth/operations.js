@@ -1,3 +1,4 @@
+import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { authAxiosInstance, setAuthAxios } from "../api/authAxios";
 
@@ -37,16 +38,44 @@ export const login = createAsyncThunk(
 
 // Logout
 export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
-  const token = thunkAPI.getState().auth.token;
+  try {
+    const state = thunkAPI.getState();
+    let token = state.auth.token;
 
-  if (token) {
-    setAuthAxios(token);
-    try {
-      await authAxiosInstance.post("/users/logout");
-      setAuthAxios(null);
-    } catch (error) {
-      console.error("LOGOUT Error:", error.message);
-      return thunkAPI.rejectWithValue(error.message);
+    console.log("🔍 Logout için kullanılan token (önceki hali):", token);
+
+    // **Eğer token yoksa, işlemi durdur!**
+    if (!token) {
+      console.warn("🚨 Logout işlemi için geçerli bir token bulunamadı!");
+      return thunkAPI.rejectWithValue("Token bulunamadı.");
     }
+
+    // 🔥 Eğer token bir Object olarak saklanıyorsa, düzelt!
+    if (typeof token === "object") {
+      token = Object.values(token).join("");
+    }
+
+    token = token.replace(/"/g, "");
+
+    console.log("✅ Logout için kullanılacak temiz token:", token);
+
+    // **🔥 Axios'a geçerli token'ı ekleyelim**
+    authAxiosInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    console.log("🚀 API'ye logout isteği gönderiliyor...");
+    await authAxiosInstance.post("/users/logout");
+
+    console.log("✅ Logout işlemi başarılı!");
+
+    // **🔥 LocalStorage temizlensin**
+    localStorage.removeItem("persist:auth");
+
+    // **🔥 Axios header'dan token'ı kaldır**
+    setAuthAxios(null);
+
+    return;
+  } catch (error) {
+    console.error("❌ LOGOUT Error:", error.response?.data || error.message);
+    return thunkAPI.rejectWithValue(error.message);
   }
 });

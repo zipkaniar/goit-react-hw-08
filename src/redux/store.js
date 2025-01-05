@@ -5,21 +5,21 @@ import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
 
-//  Redux Persist için auth yapılandırması
+// 🟢 Redux Persist yapılandırması
 const authPersistConfig = {
   key: "auth",
   storage,
-  whitelist: ["token", "user"], //  Kullanıcı verisini de sakla
-  stateReconciler: autoMergeLevel2, //  Veriyi doğru formatta sakla
+  whitelist: ["token", "user"],
+  stateReconciler: autoMergeLevel2,
 };
 
-//  Redux'un rootReducer'ı
+// 🟢 Root Reducer
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   contacts: contactsReducer,
 });
 
-//  Persist Edilmiş Reducer Kullanarak Store'u Kur
+// 🟢 Store'u oluştur
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
@@ -28,5 +28,4 @@ export const store = configureStore({
     }),
 });
 
-//  Persistor'u oluştur (Sayfa yenilendiğinde state'i korur)
 export const persistor = persistStore(store);

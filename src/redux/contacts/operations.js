@@ -13,13 +13,24 @@ const getAuthHeader = (thunkAPI) => {
   return { headers: { Authorization: `Bearer ${token}` } };
 };
 
-// ✅ Fetch Contacts (Token ile Güncellendi)
+// Fetch Contacts (Eğer token yoksa istek yapma)
 export const fetchContacts = createAsyncThunk(
   "contacts/fetchContacts",
   async (_, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.auth.token;
+
+    if (!token) {
+      console.warn(
+        "🚨 Kullanıcı giriş yapmamış, fetchContacts API çağrısı yapılmayacak!"
+      );
+      return thunkAPI.rejectWithValue("User is not authenticated");
+    }
+
     try {
-      const config = getAuthHeader(thunkAPI);
-      const { data } = await axios.get("/contacts", config);
+      const { data } = await axios.get("/contacts", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
