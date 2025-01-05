@@ -29,4 +29,5 @@ const authSlice = createSlice({
   },
 });
 
-export const authReducer = authSlice.reducer;
+// ✅ authReducer'ı default olarak dışa aktar
+export default authSlice.reducer;
