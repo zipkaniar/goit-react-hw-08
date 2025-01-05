@@ -1,13 +1,13 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import authReducer from "./auth/authSlice";
 import contactsReducer from "./contacts/slice";
-import storage from "redux-persist/lib/storage";
+import storage from "redux-persist/lib/storage"; // LocalStorage
 import { persistReducer, persistStore } from "redux-persist";
 
 const authPersistConfig = {
   key: "auth",
   storage,
-  whitelist: ["token"], // Sadece token'ı sakla
+  whitelist: ["token", "user"],
 };
 
 const rootReducer = combineReducers({
