@@ -3,13 +3,14 @@ import authReducer from "./auth/authSlice";
 import contactsReducer from "./contacts/slice";
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
 
-//  Redux Persist Ayarı (Token + Kullanıcı Bilgileri)
+//  Redux Persist için auth yapılandırması
 const authPersistConfig = {
   key: "auth",
   storage,
   whitelist: ["token", "user"], //  Kullanıcı verisini de sakla
-  serialize: false, // JSON olarak serialize etmesini engelle
+  stateReconciler: autoMergeLevel2, //  Veriyi doğru formatta sakla
 };
 
 //  Redux'un rootReducer'ı
